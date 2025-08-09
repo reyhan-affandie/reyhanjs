@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "tsc && next build",
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "startdev": "next start -p 4008",
+    "start": "next start -p 4009",
     "lint": "next lint"
   },
   "dependencies": {
