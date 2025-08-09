@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://reyhanjs.com/sitemap.xml
