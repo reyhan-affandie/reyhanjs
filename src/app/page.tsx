@@ -21,7 +21,6 @@ function Icon({ name, alt, className }: IconProps) {
 }
 
 function withSize(url: string, size: string) {
-  // append or replace &sz=...
   return url.includes("&sz=") ? url.replace(/(&sz=)[^&]*/i, `$1${size}`) : `${url}&sz=${size}`;
 }
 
@@ -29,9 +28,8 @@ export default function Root() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   return (
     <div className="w-full flex flex-col px-4 sm:px-6 md:px-10 lg:px-24 py-12 md:py-24 justify-center overflow-x-hidden relative">
-      {/* fixed CV download button (mobile-safe, same style) */}
       <a
-        href="https://drive.google.com/file/d/1ZkvNd6_3KWnsG7tnWTCSnrDpVlTFvgx1/view?usp=sharing"
+        href="https://drive.google.com/file/d/1b_TejbRwUe89mm-iRr1wv2dgZH3KGOOv/view?usp=sharing"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed z-[9999] bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 transition-colors"
@@ -154,10 +152,10 @@ export default function Root() {
             to date with the latest technology, adopting best-in-class tools, and consistently delivering scalable, production-ready solutions in fast-paced
             environments.
           </div>
-          <div className="mt-6 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Live Demo</div>
-            <div className="flex">
-              :&nbsp;
+          {/* rows */}
+          <div className="mt-6 sm:text-md flex flex-col md:flex-row md:items-center">
+            <div className="w-full md:w-32 rounded-sm leading-tight">Live Demo</div>
+            <div className="mt-2 md:mt-0 md:ml-2 md:before:content-[':'] md:before:mr-2 leading-tight">
               <a
                 href="https://nodetasks.workmild.ai"
                 target="_blank"
@@ -169,18 +167,23 @@ export default function Root() {
               </a>
             </div>
           </div>
-          <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Email</div>
-            <div className="flex">: reyhanz1988@gmail.com</div>
+          <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
+
+          <div className="mt-4 sm:text-md flex flex-col md:flex-row md:items-center">
+            <div className="w-full md:w-32 rounded-sm leading-tight">Email</div>
+            <div className="mt-2 md:mt-0 md:ml-2 md:before:content-[':'] md:before:mr-2 leading-tight">reyhanz1988@gmail.com</div>
           </div>
-          <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Password</div>
-            <div className="flex">: user1234</div>
+          <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
+
+          <div className="mt-4 sm:text-md flex flex-col md:flex-row md:items-center">
+            <div className="w-full md:w-32 rounded-sm leading-tight">Password</div>
+            <div className="mt-2 md:mt-0 md:ml-2 md:before:content-[':'] md:before:mr-2 leading-tight">user1234</div>
           </div>
-          <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Backend</div>
-            <div className="flex">
-              :&nbsp;
+          <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
+
+          <div className="mt-4 sm:text-md flex flex-col md:flex-row md:items-center">
+            <div className="w-full md:w-32 rounded-sm leading-tight">Backend</div>
+            <div className="mt-2 md:mt-0 md:ml-2 md:before:content-[':'] md:before:mr-2 leading-tight">
               <a
                 href="https://github.com/reyhan-affandie/nodetasks-api"
                 target="_blank"
@@ -192,10 +195,11 @@ export default function Root() {
               </a>
             </div>
           </div>
-          <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Frontend</div>
-            <div className="flex">
-              :&nbsp;
+          <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
+
+          <div className="mt-4 sm:text-md flex flex-col md:flex-row md:items-center">
+            <div className="w-full md:w-32 rounded-sm leading-tight">Frontend</div>
+            <div className="mt-2 md:mt-0 md:ml-2 md:before:content-[':'] md:before:mr-2 leading-tight">
               <a
                 href="https://github.com/reyhan-affandie/nodetasks-cms"
                 target="_blank"
@@ -207,6 +211,8 @@ export default function Root() {
               </a>
             </div>
           </div>
+          <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
+
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 md:gap-6 px-2 sm:px-0">
             {showcases.map((item, idx) => (
               <Dialog key={idx} open={activeIdx === idx} onOpenChange={(o) => setActiveIdx(o ? idx : null)}>
