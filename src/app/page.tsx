@@ -7,7 +7,7 @@ import showcases from "@/lib/showcases";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ContactForm from "@/components/customs/contact";
 
-//export const dynamic = "force-static";
+export const dynamic = "force-static";
 
 type IconProps = { name: string; alt: string; className?: string };
 
