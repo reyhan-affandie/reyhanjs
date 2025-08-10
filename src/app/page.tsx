@@ -99,7 +99,7 @@ export default function Root() {
         </div>
 
         {/* tech table */}
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">My technical strengths include:</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Skills:</h3>
 
         <div className="border border-gray-400 rounded-sm p-2 md:pl-8 md:pr-8">
           <table className="text-white mt-2 text-lg sm:text-xl w-full table-auto">
@@ -170,15 +170,15 @@ export default function Root() {
             </div>
           </div>
           <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Demo Email</div>
+            <div className="flex w-52 justify-start">Email</div>
             <div className="flex">: reyhanz1988@gmail.com</div>
           </div>
           <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Demo Password</div>
+            <div className="flex w-52 justify-start">Password</div>
             <div className="flex">: user1234</div>
           </div>
           <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Backend Repository</div>
+            <div className="flex w-52 justify-start">Backend</div>
             <div className="flex">
               :&nbsp;
               <a
@@ -193,7 +193,7 @@ export default function Root() {
             </div>
           </div>
           <div className="mt-1 sm:text-md flex flex-row">
-            <div className="flex w-52 justify-start">Frontend Repository</div>
+            <div className="flex w-52 justify-start">Frontend</div>
             <div className="flex">
               :&nbsp;
               <a
