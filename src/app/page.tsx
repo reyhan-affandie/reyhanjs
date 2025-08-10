@@ -239,7 +239,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <ContactForm publicKey={process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!} siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!} />
+        {/*<ContactForm publicKey={process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!} siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!} />*/}
 
         {/* footer */}
         <footer className="w-full mt-12 border-t border-gray-700 pt-6">
