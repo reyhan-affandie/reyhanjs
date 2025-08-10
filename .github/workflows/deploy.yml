@@ -21,13 +21,13 @@ jobs:
 
           if [ "$BRANCH" = "main" ]; then
             echo "PORT=4009" >> $GITHUB_ENV
-            echo "DEPLOY_PATH=/www/wwwroot/reyhanjs.com" >> $GITHUB_ENV
-            echo "START_CMD=/www/server/nodejs/vhost/scripts/reyhanjscom.sh" >> $GITHUB_ENV
+            echo "DEPLOY_PATH=/www/wwwroot/reyhanjscom" >> $GITHUB_ENV
+            echo "START_CMD=/www/server/nodejs/vhost/scripts/reyhanjs.sh" >> $GITHUB_ENV
             echo "CRON_FILE=/www/server/cron/de64faf8f2f95ba4fcd501088dd99c90" >> $GITHUB_ENV
           elif [ "$BRANCH" = "dev" ]; then
             echo "PORT=4008" >> $GITHUB_ENV
-            echo "DEPLOY_PATH=/www/wwwroot/dev.reyhanjs.com" >> $GITHUB_ENV
-            echo "START_CMD=/www/server/nodejs/vhost/scripts/devreyhanjscom.sh" >> $GITHUB_ENV
+            echo "DEPLOY_PATH=/www/wwwroot/dev.reyhanjscom" >> $GITHUB_ENV
+            echo "START_CMD=/www/server/nodejs/vhost/scripts/devreyhanjs.sh" >> $GITHUB_ENV
             echo "CRON_FILE=/www/server/cron/cf1d2706e322aa0a41ece4f4707e0427" >> $GITHUB_ENV
           else
             echo "Unsupported branch: $BRANCH. Exiting..."
