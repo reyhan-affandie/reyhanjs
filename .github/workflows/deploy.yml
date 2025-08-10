@@ -41,7 +41,7 @@ jobs:
       - name: Kill port before starting (safe)
         run: |
           sudo fuser -k ${PORT}/tcp || true
-
+          
       - name: Correct file permissions
         run: |
           cd "$DEPLOY_PATH"
@@ -60,13 +60,7 @@ jobs:
 
       - name: Remove .next cache
         run: |
-          sudo bash -c "cd '$DEPLOY_PATH' && rm -rf .next || true"
-
-      - name: Recreate .next for www
-        run: |
-          sudo chown -R www:www "$DEPLOY_PATH || true
-          sudo -u www mkdir -p "$DEPLOY_PATH/.next"
-          sudo chown -R www:www "$DEPLOY_PATH/.next"
+          sudo -u www bash -c "cd '$DEPLOY_PATH' && rm -rf .next || true"
 
       - name: Build app
         run: |
