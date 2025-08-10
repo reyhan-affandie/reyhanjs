@@ -7,9 +7,6 @@ import showcases from "@/lib/showcases";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ContactForm from "@/components/customs/contact";
 
-export const dynamic = "force-dynamic";
-export const revalidate = false;
-
 type IconProps = { name: string; alt: string; className?: string };
 
 const FALLBACK_TO_JSD = new Set(["nextdotjs", "express", "prisma", "sonarqube", "oracle", "visualstudiocode", "github", "linkedin"]);
