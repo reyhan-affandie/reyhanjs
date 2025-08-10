@@ -27,7 +27,7 @@ function withSize(url: string, size: string) {
 export default function Root() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   return (
-    <div className="w-full flex flex-col px-4 sm:px-6 md:px-10 lg:px-24 py-12 md:py-24 justify-center overflow-x-hidden relative">
+    <div className="w-full flex flex-col px-4 sm:px-6 md:px-8 lg:px-12 py-12 md:py-24 justify-center overflow-x-hidden relative">
       <a
         href="https://drive.google.com/file/d/1b_TejbRwUe89mm-iRr1wv2dgZH3KGOOv/view?usp=sharing"
         target="_blank"
@@ -51,7 +51,7 @@ export default function Root() {
         </div>
       </div>
 
-      <main className="w-full max-w-[90rem] flex flex-col mx-auto">
+      <main className="w-full max-w-[96rem] flex flex-col mx-auto">
         <div className="mt-4 flex flex-col md:flex-row md:items-start md:gap-8 px-4 md:px-0">
           {/* Photo */}
           <div className="self-start border border-gray-400 rounded-2xl p-[6px]">
@@ -213,14 +213,15 @@ export default function Root() {
           </div>
           <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 md:gap-6 px-2 sm:px-0">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-2 sm:px-0">
             {showcases.map((item, idx) => (
               <Dialog key={idx} open={activeIdx === idx} onOpenChange={(o) => setActiveIdx(o ? idx : null)}>
                 <div>
-                  <h3 className="text-xl sm:text-lg sm:mt-6 md:text-3xl font-bold text-white mb-2">{item.title}</h3>
+                  {/* Smaller title for desktop */}
+                  <h3 className="text-lg sm:text-md mt-6 md:mt-0 lg:text-lg font-bold text-white mb-2">{item.title}</h3>
 
                   <DialogTrigger asChild>
-                    <button type="button" aria-label={`Open ${item.title}`} className="w-full border border-gray-400 rounded-xl p-6 group cursor-pointer">
+                    <button type="button" aria-label={`Open ${item.title}`} className="w-full border border-gray-400 rounded-xl p-4 group cursor-pointer">
                       <Image
                         src={withSize(item.img, "s960")}
                         alt={item.alt}
