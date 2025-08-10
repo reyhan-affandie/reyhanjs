@@ -63,8 +63,8 @@ jobs:
 
       - name: Ensure deploy path writable by www
         run: |
-          sudo install -d -m 0775 -o www -g www "$DEPLOY_PATH"
-          sudo chown -R www:www "$DEPLOY_PATH"
+          sudo install -d -m 0775 -o www -g www "$DEPLOY_PATH" || true
+          sudo chown -R www:www "$DEPLOY_PATH" || true
           sudo find "$DEPLOY_PATH" -maxdepth 1 -type d -exec chmod 2775 {} \;  # keep SGID
 
       - name: Recreate .next for www
