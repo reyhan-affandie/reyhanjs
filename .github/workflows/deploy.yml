@@ -41,7 +41,7 @@ jobs:
       - name: Kill port before starting (safe)
         run: |
           sudo fuser -k ${PORT}/tcp || true
-          
+
       - name: Correct file permissions
         run: |
           cd "$DEPLOY_PATH"
@@ -54,33 +54,33 @@ jobs:
           cp .gitignore .rsync-exclude
           rsync -av --delete --exclude-from='.rsync-exclude' ./ "$DEPLOY_PATH" || true
 
+      - name: Remove node_modules & .next cache
+        run: |
+          sudo -u www bash -c "cd '$DEPLOY_PATH' && rm -rf node_modules"
+          sudo -u www bash -c "cd '$DEPLOY_PATH' && rm -rf .next"
+
       - name: Install dependencies
         run: |
           sudo -u www bash -c "cd '$DEPLOY_PATH' && $INSTALL_CMD && npm audit fix" || { echo "npm install failed"; exit 1; }
-
-      - name: Remove .next cache (root)
-        run: sudo rm -rf "$DEPLOY_PATH/.next" || true
-
-      - name: Ensure deploy path writable by www
-        run: |
-          sudo install -d -m 0775 -o www -g www "$DEPLOY_PATH" || true
-          sudo chown -R www:www "$DEPLOY_PATH" || true
-          sudo find "$DEPLOY_PATH" -maxdepth 1 -type d -exec chmod 2775 {} \;  # keep SGID
-
-      - name: Recreate .next for www
-        run: |
-          sudo -u www install -d -m 0775 "$DEPLOY_PATH/.next"
 
       - name: Build app
         run: |
           sudo -u www bash -c "cd '$DEPLOY_PATH' && npm run build" || { echo "npm run build failed"; exit 1; }
 
+      - name: Build app (source .env)
+        run: |
+          sudo -u www bash -lc '
+            cd "$DEPLOY_PATH" || exit 1
+            set -a; source .env; set +a
+            NODE_ENV=production npm run build
+          '
+
       - name: Restart service
         run: |
           sudo -u www bash -c "$START_CMD" || { echo "Service restart failed"; exit 1; }
-      
+
       - name: Re-enable related cron after deployment after 10 seconds
         run: |
           sleep 10
           sudo crontab -l | grep -q "$CRON_FILE" || \
-          (sudo crontab -l; echo "0 17 * * * $CRON_FILE >> $(dirname $CRON_FILE)/$(basename $CRON_FILE .sh).log 2>&1") | sudo crontab -
+          (sudo crontab -l; echo "* * * * * $CRON_FILE >> $(dirname $CRON_FILE)/$(basename $CRON_FILE .sh).log 2>&1") | sudo crontab -
