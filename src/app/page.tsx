@@ -27,7 +27,7 @@ function withSize(url: string, size: string) {
   return url.includes("&sz=") ? url.replace(/(&sz=)[^&]*/i, `$1${size}`) : `${url}&sz=${size}`;
 }
 
-export default function Home() {
+export default function Root() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   return (
     <div className="w-full flex flex-col px-4 sm:px-6 md:px-10 lg:px-24 py-12 md:py-24 justify-center overflow-x-hidden relative">
