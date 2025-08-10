@@ -56,7 +56,6 @@ jobs:
 
       - name: Remove node_modules & .next cache
         run: |
-          sudo -u www bash -c "cd '$DEPLOY_PATH' && rm -rf node_modules"
           sudo -u www bash -c "cd '$DEPLOY_PATH' && rm -rf .next"    
 
       - name: Install dependencies
