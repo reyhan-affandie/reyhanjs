@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 import ContactForm from "@/components/customs/contact";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 type IconProps = { name: string; alt: string; className?: string };
 
