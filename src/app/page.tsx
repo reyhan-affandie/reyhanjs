@@ -148,13 +148,13 @@ export default function Root() {
 
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">My skills showcase:</h3>
         <div className="border border-gray-400 rounded-sm p-2 md:p-6 md:pl-8 md:pr-8 text-white">
-          <div className="text-xl">
+          <div className="text-xl sm:text-md">
             In my recent work, I have designed, built, and deployed end-to-end web applications. Most notably a Task Management System delivered in just three
             days for a technical assessment, as well as an Events Management module built in only one day. These experiences reflect my dedication to staying up
             to date with the latest technology, adopting best-in-class tools, and consistently delivering scalable, production-ready solutions in fast-paced
             environments.
           </div>
-          <div className="mt-6 text-xl flex flex-row">
+          <div className="mt-6 text-xl sm:text-md flex flex-row">
             <div className="flex w-52 justify-start">Live Demo</div>
             <div className="flex">
               :&nbsp;
@@ -169,15 +169,15 @@ export default function Root() {
               </a>
             </div>
           </div>
-          <div className="mt-1 text-xl flex flex-row">
+          <div className="mt-1 text-xl  sm:text-md flex flex-row">
             <div className="flex w-52 justify-start">Demo Email</div>
             <div className="flex">: reyhanz1988@gmail.com</div>
           </div>
-          <div className="mt-1 text-xl flex flex-row">
+          <div className="mt-1 text-xl  sm:text-md flex flex-row">
             <div className="flex w-52 justify-start">Demo Password</div>
             <div className="flex">: user1234</div>
           </div>
-          <div className="mt-1 text-xl flex flex-row">
+          <div className="mt-1 text-xl  sm:text-md flex flex-row">
             <div className="flex w-52 justify-start">Backend Repository</div>
             <div className="flex">
               :&nbsp;
@@ -192,7 +192,7 @@ export default function Root() {
               </a>
             </div>
           </div>
-          <div className="mt-1 text-xl flex flex-row">
+          <div className="mt-1 text-xl  sm:text-md flex flex-row">
             <div className="flex w-52 justify-start">Frontend Repository</div>
             <div className="flex">
               :&nbsp;
