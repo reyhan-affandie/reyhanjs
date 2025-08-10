@@ -17,6 +17,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
+const isProd = process.env.NEXT_PUBLIC_DOMAIN === "reyhanjs.com";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://reyhanjs.com"),
   title: {
@@ -61,6 +63,9 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
+  verification: isProd
+    ? { google: process.env.NEXT_PUBLIC_GSC_TOKEN!.trim() }
+    : undefined,
 };
 
 export const viewport: Viewport = {
@@ -104,12 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="relative min-h-screen bg-background text-foreground font-sans">
         <main>{children}</main>
-        <Toaster
-          position="bottom-right"
-          theme="dark"
-          richColors
-          duration={4000}
-        />
+        <Toaster position="bottom-right" theme="dark" richColors duration={4000} />
       </body>
     </html>
   );
