@@ -20,7 +20,7 @@ const skills: SkillCategory[] = [
     ],
   },
   {
-    title: "2. Programming Language",
+    title: "2. Programming Languages",
     items: [
       { name: "TypeScript", icon: "typescript", alt: "TypeScript", url: "https://www.typescriptlang.org/" },
       { name: "JavaScript", icon: "javascript", alt: "JavaScript", url: "https://developer.mozilla.org/docs/Web/JavaScript" },
