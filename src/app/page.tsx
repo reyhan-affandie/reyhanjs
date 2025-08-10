@@ -211,7 +211,7 @@ export default function Root() {
             {showcases.map((item, idx) => (
               <Dialog key={idx} open={activeIdx === idx} onOpenChange={(o) => setActiveIdx(o ? idx : null)}>
                 <div>
-                  <h3 className="text-xl sm:text-xl md:text-3xl font-bold text-white mb-2">{item.title}</h3>
+                  <h3 className="text-xl sm:text-lg sm:mt-6 md:text-3xl font-bold text-white mb-2">{item.title}</h3>
 
                   <DialogTrigger asChild>
                     <button type="button" aria-label={`Open ${item.title}`} className="w-full border border-gray-400 rounded-xl p-6 group cursor-pointer">
