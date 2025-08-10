@@ -1,13 +1,14 @@
 "use client";
 
-export const dynamic = "force-static";
-
 import React, { useState } from "react";
 import Image from "next/image";
 import skills from "@/lib/skills";
 import showcases from "@/lib/showcases";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { headers } from "next/headers";
 import ContactForm from "@/components/customs/contact";
+
+//export const dynamic = "force-static";
 
 type IconProps = { name: string; alt: string; className?: string };
 
