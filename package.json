@@ -5,8 +5,8 @@
   "scripts": {
     "build": "tsc && next build",
     "dev": "next dev --turbopack",
-    "startdev": "next start -p 4008",
-    "start": "next start -p 4009",
+    "startdev": "next dev --turbopack -p 4008",
+    "start": "next dev --turbopack -p 4009",
     "lint": "next lint"
   },
   "dependencies": {
