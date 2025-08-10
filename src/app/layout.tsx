@@ -66,8 +66,7 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export const dynamic = "force-dynamic";
-export const revalidate = false;
+export const dynamic = "force-static";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
