@@ -52,7 +52,7 @@ export default function Root() {
       </div>
 
       <main className="w-full max-w-[96rem] flex flex-col mx-auto">
-        <div className="mt-4 flex flex-col md:flex-row md:items-start md:gap-8 px-4 md:px-0">
+        <div className="mt-4 flex flex-col lg:flex-row lg:items-start lg:gap-8 px-4 lg:px-0">
           {/* Photo */}
           <div className="self-start border border-gray-400 rounded-2xl p-[6px]">
             <Image
@@ -65,7 +65,7 @@ export default function Root() {
           </div>
 
           {/* Text column */}
-          <div className="mt-4 md:mt-0 md:flex-1">
+          <div className="mt-4 lg:mt-0 lg:flex-1">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white">
               Bringing digital products to life
               <br className="hidden sm:block" />
@@ -73,6 +73,7 @@ export default function Root() {
             </h1>
 
             <h2 className="text-2xl sm:text-2xl md:text-4xl font-bold text-white mt-6">Reyhan Emir Affandie</h2>
+
             <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-2xl text-white">
               Full-Stack Engineer with 14 years of experience, with the last 6 years specializing on modern JavaScript frameworks.
             </p>
@@ -213,12 +214,12 @@ export default function Root() {
           </div>
           <div className="w-full border-b border-gray-400 my-2 group-hover:border-black"></div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-2 sm:px-0">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-2 sm:px-0">
             {showcases.map((item, idx) => (
               <Dialog key={idx} open={activeIdx === idx} onOpenChange={(o) => setActiveIdx(o ? idx : null)}>
                 <div>
                   {/* Smaller title for desktop */}
-                  <h3 className="text-lg sm:text-md mt-6 md:mt-0 lg:text-lg font-bold text-white mb-2">{item.title}</h3>
+                  <h3 className="text-lg sm:text-md mt-6 md:mt-0 xl:text-lg font-bold text-white mb-2">{item.title}</h3>
 
                   <DialogTrigger asChild>
                     <button type="button" aria-label={`Open ${item.title}`} className="w-full border border-gray-400 rounded-xl p-4 group cursor-pointer">
