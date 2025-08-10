@@ -64,6 +64,8 @@ jobs:
 
       - name: Recreate .next for www
         run: |
+          sudo find . ! -name '.user.ini' -exec chown www:www {} + || true
+          sudo chmod -R 755 . || true
           sudo -u www mkdir -p "$DEPLOY_PATH/.next"
           sudo chown -R www:www "$DEPLOY_PATH/.next"
 
