@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 import React, { useState } from "react";
 import Image from "next/image";
