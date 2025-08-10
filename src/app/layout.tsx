@@ -3,6 +3,7 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -103,6 +104,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="relative min-h-screen bg-background text-foreground font-sans">
         <main>{children}</main>
+        <Toaster
+          position="bottom-right"
+          theme="dark"
+          richColors
+          duration={4000}
+        />
       </body>
     </html>
   );

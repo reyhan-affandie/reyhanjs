@@ -5,11 +5,12 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { z } from "zod";
+import { toast } from "sonner";
 
 declare global {
   interface Window {
     grecaptcha?: any;
-    onReyhanCaptcha?: () => void;
+    onReyhanCaptcha?: (token?: string) => void;
   }
 }
 
@@ -29,36 +30,27 @@ const FormSchema = z.object({
 });
 type FormValues = z.infer<typeof FormSchema>;
 
-export default function ContactForm({
-  serviceId = "service_j0mmuf4",
-  templateId = "template_ayumu0v",
-  publicKey,
-  siteKey,
-  allowedDomain,
-}: ContactFormProps) {
+export default function ContactForm({ serviceId = "service_j0mmuf4", templateId = "template_ayumu0v", publicKey, siteKey, allowedDomain }: ContactFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [sending, setSending] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
   const [mounted, setMounted] = useState(false);
-  const [isLocalhost, setIsLocalhost] = useState(true);
   const [isCaptchaDomain, setIsCaptchaDomain] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
 
-  // Decide where captcha is active
   useEffect(() => {
     setMounted(true);
-    const host = typeof window !== "undefined" ? window.location.hostname : "";
-    setIsLocalhost(["localhost", "127.0.0.1"].includes(host));
-    // reCAPTCHA should work only on the exact allowed domain
-    setIsCaptchaDomain(host === allowedDomain);
-
-    window.onReyhanCaptcha = () => setHasToken(true);
+    const host = window.location.hostname;
+    const apex = allowedDomain.replace(/^www\./, "");
+    const normalized = host.replace(/^www\./, "");
+    setIsCaptchaDomain(normalized === apex); // works for reyhanjs.com and www.reyhanjs.com
+    window.onReyhanCaptcha = (t?: string) => setCaptchaToken(t || "");
     return () => {
       delete window.onReyhanCaptcha;
     };
   }, [allowedDomain]);
 
-  const captchaEnabled = mounted && !isLocalhost && isCaptchaDomain;
+  const captchaEnabled = mounted && isCaptchaDomain;
 
   function getValues(): FormValues {
     const fd = new FormData(formRef.current!);
@@ -89,11 +81,13 @@ export default function ContactForm({
     }
     setErrors({});
 
-    // Require reCAPTCHA only on the allowed production domain
+    let token = "";
     if (captchaEnabled) {
-      const token = window.grecaptcha?.getResponse?.();
+      token = captchaToken || window.grecaptcha?.getResponse?.() || "";
       if (!token) {
-        alert("Please verify the reCAPTCHA.");
+        toast.error("reCAPTCHA required", {
+          description: "Please complete the reCAPTCHA before sending.",
+        });
         return;
       }
     }
@@ -110,18 +104,22 @@ export default function ContactForm({
           title: v.title,
           message: v.message,
           time: new Date().toLocaleString(),
+          "g-recaptcha-response": token,
         },
         { publicKey }
       );
 
       formRef.current.reset();
       if (captchaEnabled) window.grecaptcha?.reset?.();
-      setHasToken(false);
-      alert("Message sent. Thanks!");
+      setCaptchaToken("");
+      toast.success("Message sent", {
+        description: "Thanks! I will get back to you shortly.",
+      });
     } catch (err: any) {
-      console.error("EMAILJS ERROR:", err);
-      const msg = err?.text || err?.message || (typeof err === "string" ? err : JSON.stringify(err));
-      alert(`Send failed: ${msg}`);
+      const msg = err?.text || err?.message || (typeof err === "string" ? err : "Unknown error");
+      toast.error("Send failed", {
+        description: msg,
+      });
     } finally {
       setSending(false);
     }
@@ -132,13 +130,11 @@ export default function ContactForm({
       errors[key] ? "border-red-500 focus:border-red-400" : "border-white/30 focus:border-white/60"
     } outline-none px-3 py-2 text-white placeholder-white/40`;
 
+  const isDisabled = sending || (captchaEnabled && !captchaToken);
   return (
     <section className="mt-6">
-      {/* Load the script ONLY on the allowed prod domain */}
       {captchaEnabled && <Script src="https://www.google.com/recaptcha/api.js" strategy="lazyOnload" />}
-
       <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4">Get in touch</h3>
-
       <form ref={formRef} onSubmit={onSubmit} noValidate className="bg-black/30 border border-white/20 rounded-lg p-4 sm:p-6 md:p-8 backdrop-blur">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -173,7 +169,6 @@ export default function ContactForm({
           {errors.message && <p className="mt-1 text-sm text-red-400">{errors.message}</p>}
         </div>
 
-        {/* Only render captcha on the allowed prod domain */}
         {captchaEnabled && (
           <div className="mt-4 min-h-16 flex items-center">
             <div className="g-recaptcha" data-sitekey={siteKey} data-callback="onReyhanCaptcha" />
@@ -182,9 +177,13 @@ export default function ContactForm({
 
         <div className="mt-6 flex items-center gap-3">
           <button
-            type="submit"
-            disabled={sending || (captchaEnabled && !hasToken)}
-            className="cursor-pointer inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 transition-colors"
+            disabled={isDisabled}
+            className="
+              inline-flex items-center justify-center px-4 py-2 rounded-md shadow-lg
+              text-white transition-colors
+              bg-blue-600 enabled:hover:bg-blue-700
+              enabled:cursor-pointer disabled:cursor-not-allowed
+              disabled:bg-gray-500 disabled:opacity-60"
           >
             {sending ? "Sending..." : "Send message"}
           </button>
