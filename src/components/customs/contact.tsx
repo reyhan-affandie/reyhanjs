@@ -14,45 +14,58 @@ declare global {
 }
 
 type ContactFormProps = {
-  serviceId?: string; // EmailJS Service ID
-  templateId?: string; // EmailJS Template ID
+  serviceId?: string;
+  templateId?: string;
   publicKey: string; // NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
   siteKey: string; // NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  allowedDomain: string; // defaults to NEXT_PUBLIC_DOMAIN (e.g. "reyhanjs.com")
 };
 
-// Zod schema
 const FormSchema = z.object({
   name: z.string().trim().min(2, "Please enter your full name."),
   email: z.string().trim().email("Please enter a valid email address."),
-  title: z.string().trim().min(2, "Please enter a title."), // changed from subject -> title
+  title: z.string().trim().min(2, "Please enter a title."),
   message: z.string().trim().min(5, "Please enter a longer message."),
 });
-
 type FormValues = z.infer<typeof FormSchema>;
 
-export default function ContactForm({ serviceId = "service_j0mmuf4", templateId = "template_ayumu0v", publicKey, siteKey }: ContactFormProps) {
+export default function ContactForm({
+  serviceId = "service_j0mmuf4",
+  templateId = "template_ayumu0v",
+  publicKey,
+  siteKey,
+  allowedDomain,
+}: ContactFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [sending, setSending] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isLocalhost, setIsLocalhost] = useState(true);
+  const [isCaptchaDomain, setIsCaptchaDomain] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
 
+  // Decide where captcha is active
   useEffect(() => {
     setMounted(true);
-    setIsLocalhost(typeof window !== "undefined" && ["localhost", "127.0.0.1"].includes(window.location.hostname));
+    const host = typeof window !== "undefined" ? window.location.hostname : "";
+    setIsLocalhost(["localhost", "127.0.0.1"].includes(host));
+    // reCAPTCHA should work only on the exact allowed domain
+    setIsCaptchaDomain(host === allowedDomain);
+
     window.onReyhanCaptcha = () => setHasToken(true);
     return () => {
       delete window.onReyhanCaptcha;
     };
-  }, []);
+  }, [allowedDomain]);
+
+  const captchaEnabled = mounted && !isLocalhost && isCaptchaDomain;
 
   function getValues(): FormValues {
     const fd = new FormData(formRef.current!);
     return {
       name: String(fd.get("name") || ""),
       email: String(fd.get("email") || ""),
-      title: String(fd.get("title") || ""), // read "title"
+      title: String(fd.get("title") || ""),
       message: String(fd.get("message") || ""),
     };
   }
@@ -61,7 +74,7 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
     e.preventDefault();
     if (!formRef.current) return;
 
-    // 1) Validate
+    // Validate
     const parsed = FormSchema.safeParse(getValues());
     if (!parsed.success) {
       const fieldErrors: Partial<Record<keyof FormValues, string>> = {};
@@ -71,15 +84,13 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
       });
       setErrors(fieldErrors);
       const first = Object.keys(fieldErrors)[0];
-      if (first) {
-        formRef.current.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${first}"]`)?.focus();
-      }
+      if (first) formRef.current.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${first}"]`)?.focus();
       return;
     }
     setErrors({});
 
-    // 2) reCAPTCHA (skip on localhost)
-    if (!isLocalhost) {
+    // Require reCAPTCHA only on the allowed production domain
+    if (captchaEnabled) {
       const token = window.grecaptcha?.getResponse?.();
       if (!token) {
         alert("Please verify the reCAPTCHA.");
@@ -87,28 +98,24 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
       }
     }
 
-    // 3) Send via EmailJS with explicit vars
     setSending(true);
     try {
       const v = getValues();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const res = await emailjs.send(
+      await emailjs.send(
         serviceId,
         templateId,
         {
-          name: v.name, // matches {{name}}
-          email: v.email, // matches {{email}} and Reply To
-          title: v.title, // matches {{title}} used in Subject
-          message: v.message, // matches {{message}}
-          time: new Date().toLocaleString(), // optional if you use {{time}} in the template
+          name: v.name,
+          email: v.email,
+          title: v.title,
+          message: v.message,
+          time: new Date().toLocaleString(),
         },
         { publicKey }
       );
 
-      // success
-      // console.log("EMAILJS OK:", res);
       formRef.current.reset();
-      if (!isLocalhost) window.grecaptcha?.reset?.();
+      if (captchaEnabled) window.grecaptcha?.reset?.();
       setHasToken(false);
       alert("Message sent. Thanks!");
     } catch (err: any) {
@@ -127,12 +134,12 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
 
   return (
     <section className="mt-6">
-      {mounted && !isLocalhost && <Script src="https://www.google.com/recaptcha/api.js" strategy="lazyOnload" />}
+      {/* Load the script ONLY on the allowed prod domain */}
+      {captchaEnabled && <Script src="https://www.google.com/recaptcha/api.js" strategy="lazyOnload" />}
 
       <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4">Get in touch</h3>
 
       <form ref={formRef} onSubmit={onSubmit} noValidate className="bg-black/30 border border-white/20 rounded-lg p-4 sm:p-6 md:p-8 backdrop-blur">
-        {/* name + email */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="name" className="block text-white text-sm mb-1">
@@ -141,7 +148,6 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
             <input id="name" name="name" autoComplete="name" className={border("name")} placeholder="Your name" />
             {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
           </div>
-
           <div>
             <label htmlFor="email" className="block text-white text-sm mb-1">
               Email
@@ -167,8 +173,8 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
           {errors.message && <p className="mt-1 text-sm text-red-400">{errors.message}</p>}
         </div>
 
-        {/* reCAPTCHA */}
-        {mounted && !isLocalhost && (
+        {/* Only render captcha on the allowed prod domain */}
+        {captchaEnabled && (
           <div className="mt-4 min-h-16 flex items-center">
             <div className="g-recaptcha" data-sitekey={siteKey} data-callback="onReyhanCaptcha" />
           </div>
@@ -177,7 +183,7 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
         <div className="mt-6 flex items-center gap-3">
           <button
             type="submit"
-            disabled={sending || (!isLocalhost && !hasToken)}
+            disabled={sending || (captchaEnabled && !hasToken)}
             className="cursor-pointer inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 transition-colors"
           >
             {sending ? "Sending..." : "Send message"}
