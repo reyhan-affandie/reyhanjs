@@ -29,7 +29,7 @@ export default function Root() {
   return (
     <div className="w-full flex flex-col px-4 sm:px-6 md:px-8 lg:px-12 py-12 md:py-24 justify-center overflow-x-hidden relative">
       <a
-        href="https://drive.google.com/file/d/1obiiDq51u-fy9FgdAespaPp8ygF7Aq-q/view?usp=sharing"
+        href="https://drive.google.com/file/d/1TbUoVZJO0QaVBTRGUd8hTvroIpkTznNP/view?usp=sharing"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed z-[9999] bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 transition-colors"
@@ -71,10 +71,11 @@ export default function Root() {
             <h2 className="text-xl lg:text-2xl font-bold text-white mt-6">Reyhan Emir Affandie</h2>
 
             <p className="mt-4 sm:mt-6 text-sm md:text-lg lg:text-xl text-white text-justify">
-              Full Stack Engineer | 14+ Years Experience | Last 6+ Years Specializing in Modern JavaScript Frameworks (React.js, Next.js, Node.js, Express.js) |
-              Scalable Architecture & High-Performance Development | Global Collaboration & Fully Remote-Ready | Certified Frontend Engineer by Micro1 (July 27,
-              2025). Focused on user experience, frontend engineering standards, design principles, and customer-centric solutions for consumer-facing products.
-              Committed to working seamlessly across all time zones (UTC-12 to UTC+14) for effective collaboration and delivery.
+              Full Stack Engineer | 14+ Years Experience | Specializing in Modern JavaScript Frameworks (MySQL/MongoDB, Express.js, React.js, Node.js) |
+              Scalable Architecture & High-Performance Development | Global Collaboration & Fully Remote-Ready with Professional Home Office Setup | Certified
+              Frontend Engineer by Micro1 (July 27, 2025). Focused on user experience, frontend engineering standards, design principles, and customer-centric
+              solutions for consumer-facing products. Committed to working seamlessly across all time zones (UTC-12 to UTC+14) for effective collaboration and
+              delivery.
             </p>
           </div>
         </div>
