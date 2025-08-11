@@ -134,7 +134,7 @@ export default function ContactForm({ serviceId = "service_j0mmuf4", templateId 
   return (
     <section className="mt-6">
       {captchaEnabled && <Script src="https://www.google.com/recaptcha/api.js" strategy="lazyOnload" />}
-      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4">Get in touch</h3>
+      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Get in touch</h3>
       <form ref={formRef} onSubmit={onSubmit} noValidate className="bg-black/30 border border-white/20 rounded-lg p-4 sm:p-6 md:p-8 backdrop-blur">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

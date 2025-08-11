@@ -67,17 +67,17 @@ export default function Root() {
           {/* Text column */}
           <div className="mt-4 lg:mt-0 lg:flex-1">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white">
-              Bringing digital products to life
-              <br className="hidden sm:block" />
+              Bringing digital products to life&nbsp;
+              <br className="hidden sm:hidden md:block" />
               with code and innovation.
             </h1>
 
-            <h2 className="text-2xl sm:text-2xl md:text-4xl font-bold text-white mt-6">Reyhan Emir Affandie</h2>
+            <h2 className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mt-6">Reyhan Emir Affandie</h2>
 
-            <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-2xl text-white">
-              Full-Stack Engineer with 14 years of experience, with the last 6 years specializing on modern JavaScript frameworks.
+            <p className="mt-4 sm:mt-6 text-sm md:text-lg lg:text-xl text-white">
+              Full-Stack Engineer with 14 years of experience, last 6 years specializing on modern JavaScript frameworks.
             </p>
-            <p className="text-base sm:text-lg md:text-2xl text-white">Certified Frontend Engineer (Micro1, July 27, 2025).</p>
+            <p className="mt-4 md:mt-0 lg:mt-0 text-sm md:text-lg lg:text-xl text-white">Certified Frontend Engineer (Micro1, July 27, 2025).</p>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export default function Root() {
         </div>
 
         {/* tech table */}
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Skills:</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Skills</h3>
 
         <div className="border border-gray-400 rounded-sm p-2 md:pl-8 md:pr-8">
           <table className="text-white mt-2 text-lg sm:text-xl w-full table-auto">
@@ -145,7 +145,7 @@ export default function Root() {
           </table>
         </div>
 
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">My skills showcase:</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Showcase</h3>
         <div className="border border-gray-400 rounded-sm p-2 md:p-6 md:pl-8 md:pr-8 text-white">
           <div className="sm:text-md">
             In my recent work, I have designed, built, and deployed end-to-end web applications. Most notably a Task Management System delivered in just three
