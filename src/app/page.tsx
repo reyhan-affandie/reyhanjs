@@ -66,7 +66,7 @@ export default function Root() {
 
           {/* Text column */}
           <div className="mt-4 lg:mt-0 lg:flex-1">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
               Bringing digital products to life&nbsp;
               <br className="hidden sm:hidden md:block" />
               with code and innovation.
@@ -77,7 +77,7 @@ export default function Root() {
             <p className="mt-4 sm:mt-6 text-sm md:text-lg lg:text-xl text-white">
               Full-Stack Engineer with 14 years of experience, last 6 years specializing on modern JavaScript frameworks.
             </p>
-            <p className="mt-4 md:mt-0 lg:mt-0 text-sm md:text-lg lg:text-xl text-white">Certified Frontend Engineer (Micro1, July 27, 2025).</p>
+            <p className="mt-4 md:mt-4 lg:mt-0 text-sm md:text-lg lg:text-xl text-white">Certified Frontend Engineer (Micro1, July 27, 2025).</p>
           </div>
         </div>
 
