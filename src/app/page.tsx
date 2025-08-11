@@ -144,7 +144,7 @@ export default function Root() {
           </table>
         </div>
 
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Showcase</h3>
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mt-6">Engineering Showcase</h3>
         <div className="border border-gray-400 rounded-sm p-2 md:p-6 md:pl-8 md:pr-8 text-white">
           <div className="sm:text-md">
             In my recent work, I have designed, built, and deployed end-to-end web applications. Most notably a Task Management System delivered in just three
