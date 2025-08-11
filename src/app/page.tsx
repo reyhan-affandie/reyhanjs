@@ -66,18 +66,16 @@ export default function Root() {
 
           {/* Text column */}
           <div className="mt-4 lg:mt-0 lg:flex-1">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
-              Bringing digital products to life&nbsp;
-              <br className="hidden sm:hidden md:block" />
-              with code and innovation.
-            </h1>
+            <h1 className="text-3xl lg:text-4xl font-bold text-white">Bringing digital products to life&nbsp; with code and innovation.</h1>
 
-            <h2 className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mt-6">Reyhan Emir Affandie</h2>
+            <h2 className="text-xl lg:text-2xl font-bold text-white mt-6">Reyhan Emir Affandie</h2>
 
-            <p className="mt-4 sm:mt-6 text-sm md:text-lg lg:text-xl text-white">
-              Full-Stack Engineer with 14 years of experience, last 6 years specializing on modern JavaScript frameworks.
+            <p className="mt-4 sm:mt-6 text-sm md:text-lg lg:text-xl text-white text-justify">
+              Full Stack Engineer | 14+ Years Experience | Last 6+ Years Specializing in Modern JavaScript Frameworks (React.js, Next.js, Node.js, Express.js) |
+              Scalable Architecture & High-Performance Development | Global Collaboration & Fully Remote-Ready | Certified Frontend Engineer by Micro1 (July 27,
+              2025). Focused on user experience, frontend engineering standards, design principles, and customer-centric solutions for consumer-facing products.
+              Committed to working seamlessly across all time zones (UTC-12 to UTC+14) for effective collaboration and delivery.
             </p>
-            <p className="mt-4 md:mt-4 lg:mt-0 text-sm md:text-lg lg:text-xl text-white">Certified Frontend Engineer (Micro1, July 27, 2025).</p>
           </div>
         </div>
 
