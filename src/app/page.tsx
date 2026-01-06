@@ -247,9 +247,9 @@ export default function Root() {
           </div>
         </div>
         <ContactForm
-          publicKey={process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!.trim()}
-          siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!.trim()}
-          allowedDomain={process.env.NEXT_PUBLIC_DOMAIN!.trim()}
+          publicKey={(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ?? "").trim()}
+          siteKey={(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "").trim()}
+          allowedDomain={(process.env.NEXT_PUBLIC_DOMAIN ?? "").trim()}
         />
 
         {/* footer */}
