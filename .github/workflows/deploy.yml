@@ -1,6 +1,7 @@
 name: Deploy via Self-Hosted Runner
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, dev]
 
@@ -41,6 +42,22 @@ jobs:
         run: |
           set -euo pipefail
           git config --global --add safe.directory "$DEPLOY_PATH" || true
+
+      - name: Disable watchdog cron during deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CRON_FILE="/etc/cron.d/reyhanjs-watchdog"
+          CRON_OFF="/etc/cron.d/reyhanjs-watchdog.disabled"
+
+          if [ -f "$CRON_FILE" ]; then
+            sudo mv "$CRON_FILE" "$CRON_OFF"
+            sudo systemctl restart cron
+            echo "Watchdog cron disabled"
+          else
+            echo "Watchdog cron not found, skipping disable"
+          fi
 
       - name: Ensure repo exists in deploy folder
         shell: bash
@@ -127,3 +144,19 @@ jobs:
           set -euo pipefail
           ss -lntp | grep ":${PORT}" || true
           tail -n 40 "$DEPLOY_PATH/logs/app.log" || true
+
+      - name: Re-enable watchdog cron after deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CRON_FILE="/etc/cron.d/reyhanjs-watchdog"
+          CRON_OFF="/etc/cron.d/reyhanjs-watchdog.disabled"
+
+          if [ -f "$CRON_OFF" ]; then
+            sudo mv "$CRON_OFF" "$CRON_FILE"
+            sudo systemctl restart cron
+            echo "Watchdog cron enabled"
+          else
+            echo "Watchdog cron disabled file not found, skipping enable"
+          fi
