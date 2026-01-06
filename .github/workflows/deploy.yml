@@ -10,38 +10,69 @@ concurrency:
 
 jobs:
   deploy:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - branch: main
-            deploy_path: /home/reyhanjs/public_html
-            port: "4003"
-            start_script: start
-            runs_on: '["self-hosted","linux","x64","reyhanjs"]'
-          - branch: dev
-            deploy_path: /home/devreyhanjs/public_html
-            port: "4002"
-            start_script: startdev
-            runs_on: '["self-hosted","linux","x64","devreyhanjs"]'
-
-    if: github.ref_name == matrix.branch
-    runs-on: ${{ fromJSON(matrix.runs_on) }}
-
-    env:
-      DEPLOY_PATH: ${{ matrix.deploy_path }}
-      PORT: ${{ matrix.port }}
-      START_SCRIPT: ${{ matrix.start_script }}
+    runs-on: [self-hosted, linux, x64, reyhanjs]
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Setup parameters (branch -> path/port/start)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BRANCH="${GITHUB_REF_NAME}"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+          if [ "$BRANCH" = "main" ]; then
+            echo "DEPLOY_PATH=/home/reyhanjs/public_html" >> "$GITHUB_ENV"
+            echo "PORT=4003" >> "$GITHUB_ENV"
+            echo "START_SCRIPT=start" >> "$GITHUB_ENV"
+          elif [ "$BRANCH" = "dev" ]; then
+            echo "DEPLOY_PATH=/home/devreyhanjs/public_html" >> "$GITHUB_ENV"
+            echo "PORT=4002" >> "$GITHUB_ENV"
+            echo "START_SCRIPT=startdev" >> "$GITHUB_ENV"
+          else
+            echo "Unsupported branch: $BRANCH"
+            exit 0
+          fi
+
+          echo "REPO_URL=https://github.com/reyhan-affandie/reyhanjs" >> "$GITHUB_ENV"
+
+      - name: Ensure repo exists in deploy folder
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$DEPLOY_PATH"
+          cd "$DEPLOY_PATH"
+
+          if [ ! -d ".git" ]; then
+            git clone --branch "$BRANCH" --single-branch "$REPO_URL" .
+          fi
+
+      - name: Pull latest (dev/main)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+
+          git fetch origin "$BRANCH"
+          git checkout -f "$BRANCH" || git switch -f "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+
+      - name: Clean tracked files (keep logs + env)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+
+          git clean -fdx -e logs/ -e .env -e .env.* || true
 
       - name: Stop old app (pid + port fallback)
         shell: bash
         run: |
           set -euo pipefail
-          cd "$DEPLOY_PATH" 2>/dev/null || true
+          cd "$DEPLOY_PATH" || true
+
+          mkdir -p logs
 
           if [ -f logs/app.pid ]; then
             kill "$(cat logs/app.pid)" 2>/dev/null || true
@@ -50,28 +81,29 @@ jobs:
 
           fuser -k "${PORT}/tcp" 2>/dev/null || true
 
-      - name: Sync project to deployment folder (keeps logs/)
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$DEPLOY_PATH"
-
-          rsync -av --delete \
-            --filter=':- .gitignore' \
-            --exclude='logs/' \
-            ./ "$DEPLOY_PATH/"
-
-      - name: Install, build, prune
+      - name: Install dependencies
         shell: bash
         run: |
           set -euo pipefail
           cd "$DEPLOY_PATH"
           npm ci
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
           rm -rf .next || true
           npm run build
+
+      - name: Prune dev dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
           npm prune --omit=dev
 
-      - name: Start (nohup + pid)
+      - name: Start app (nohup + pid)
         shell: bash
         run: |
           set -euo pipefail
@@ -81,5 +113,9 @@ jobs:
           nohup npm run "$START_SCRIPT" > logs/app.log 2>&1 &
           echo $! > logs/app.pid
 
+      - name: Health check (port + last logs)
+        shell: bash
+        run: |
+          set -euo pipefail
           ss -lntp | grep ":${PORT}" || true
-          tail -n 30 logs/app.log || true
+          tail -n 40 "$DEPLOY_PATH/logs/app.log" || true
