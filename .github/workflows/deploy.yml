@@ -36,6 +36,12 @@ jobs:
 
           echo "REPO_URL=https://github.com/reyhan-affandie/reyhanjs" >> "$GITHUB_ENV"
 
+      - name: Allow git in deploy folder (safe.directory)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$DEPLOY_PATH"
+
       - name: Ensure repo exists in deploy folder
         shell: bash
         run: |
