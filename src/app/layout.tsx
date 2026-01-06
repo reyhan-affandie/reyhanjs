@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   verification: isProd
-    ? { google: process.env.NEXT_PUBLIC_GSC_TOKEN!.trim() }
+    ? { google: (process.env.NEXT_PUBLIC_GSC_TOKEN ?? "").trim() }
     : undefined,
 };
 
