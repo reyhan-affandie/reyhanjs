@@ -34,13 +34,14 @@ jobs:
             exit 0
           fi
 
-          echo "REPO_URL=https://github.com/reyhan-affandie/reyhanjs" >> "$GITHUB_ENV"
+          echo "REPO_URL=https://github.com/reyhan-affandie/reyhanjs.git" >> "$GITHUB_ENV"
 
       - name: Allow git in deploy folder (safe.directory)
         shell: bash
         run: |
           set -euo pipefail
-          git config --global --add safe.directory "$DEPLOY_PATH"
+          git config --global --add safe.directory "$DEPLOY_PATH" || true
+          git config --system --add safe.directory "$DEPLOY_PATH" || true
 
       - name: Ensure repo exists in deploy folder
         shell: bash
@@ -53,6 +54,8 @@ jobs:
           if [ ! -d ".git" ]; then
             git clone --branch "$BRANCH" --single-branch "$REPO_URL" .
           fi
+
+          git remote set-url origin "$REPO_URL"
 
       - name: Pull latest (dev/main)
         shell: bash
