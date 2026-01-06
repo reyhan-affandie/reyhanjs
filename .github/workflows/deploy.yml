@@ -2,85 +2,84 @@ name: Deploy via Self-Hosted Runner
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: main
+            deploy_path: /home/reyhanjs/public_html
+            port: "4003"
+            start_script: start
+            runs_on: '["self-hosted","linux","x64","reyhanjs"]'
+          - branch: dev
+            deploy_path: /home/devreyhanjs/public_html
+            port: "4002"
+            start_script: startdev
+            runs_on: '["self-hosted","linux","x64","devreyhanjs"]'
+
+    if: github.ref_name == matrix.branch
+    runs-on: ${{ fromJSON(matrix.runs_on) }}
+
+    env:
+      DEPLOY_PATH: ${{ matrix.deploy_path }}
+      PORT: ${{ matrix.port }}
+      START_SCRIPT: ${{ matrix.start_script }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set deployment config (dev/prod)
+      - name: Stop old app (pid + port fallback)
         shell: bash
         run: |
           set -euo pipefail
+          cd "$DEPLOY_PATH" 2>/dev/null || true
 
-          BRANCH="${GITHUB_REF_NAME}"
-          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
-
-          if [ "$BRANCH" = "main" ]; then
-            echo "DEPLOY_USER=reyhanjs" >> "$GITHUB_ENV"
-            echo "DEPLOY_PATH=/home/reyhanjs/public_html" >> "$GITHUB_ENV"
-            echo "START_SCRIPT=start" >> "$GITHUB_ENV"   # npm run start -> 4003
-            echo "PORT=4003" >> "$GITHUB_ENV"
-          elif [ "$BRANCH" = "dev" ]; then
-            echo "DEPLOY_USER=devreyhanjs" >> "$GITHUB_ENV"
-            echo "DEPLOY_PATH=/home/devreyhanjs/public_html" >> "$GITHUB_ENV"
-            echo "START_SCRIPT=startdev" >> "$GITHUB_ENV" # npm run startdev -> 4002
-            echo "PORT=4002" >> "$GITHUB_ENV"
-          else
-            echo "Unsupported branch: $BRANCH"
-            exit 0
+          if [ -f logs/app.pid ]; then
+            kill "$(cat logs/app.pid)" 2>/dev/null || true
+            rm -f logs/app.pid || true
           fi
 
-      - name: Sync project to deployment folder (as deploy user, uses .gitignore)
+          fuser -k "${PORT}/tcp" 2>/dev/null || true
+
+      - name: Sync project to deployment folder (keeps logs/)
         shell: bash
         run: |
           set -euo pipefail
-          sudo -u "$DEPLOY_USER" rsync -av --delete --filter=':- .gitignore' ./ "$DEPLOY_PATH/"
+          mkdir -p "$DEPLOY_PATH"
 
-      - name: Install dependencies (includes dev deps for build)
+          rsync -av --delete \
+            --filter=':- .gitignore' \
+            --exclude='logs/' \
+            ./ "$DEPLOY_PATH/"
+
+      - name: Install, build, prune
         shell: bash
         run: |
           set -euo pipefail
-          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm ci"
+          cd "$DEPLOY_PATH"
+          npm ci
+          rm -rf .next || true
+          npm run build
+          npm prune --omit=dev
 
-      - name: Clean Next cache
+      - name: Start (nohup + pid)
         shell: bash
         run: |
           set -euo pipefail
-          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && rm -rf .next || true"
+          cd "$DEPLOY_PATH"
+          mkdir -p logs
 
-      - name: Build
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm run build"
+          nohup npm run "$START_SCRIPT" > logs/app.log 2>&1 &
+          echo $! > logs/app.pid
 
-      - name: Prune dev dependencies (after build)
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm prune --omit=dev"
-
-      - name: Restart app (nohup + pid)
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          sudo -u "$DEPLOY_USER" bash -lc "
-            cd '$DEPLOY_PATH'
-            mkdir -p logs
-
-            if [ -f logs/app.pid ]; then
-              kill \$(cat logs/app.pid) 2>/dev/null || true
-              rm -f logs/app.pid
-            fi
-
-            nohup npm run ${START_SCRIPT} > logs/app.log 2>&1 &
-            echo \$! > logs/app.pid
-          "
+          ss -lntp | grep ":${PORT}" || true
+          tail -n 30 logs/app.log || true
