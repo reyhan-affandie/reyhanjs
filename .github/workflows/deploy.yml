@@ -25,46 +25,25 @@ jobs:
           if [ "$BRANCH" = "main" ]; then
             echo "DEPLOY_USER=reyhanjs" >> "$GITHUB_ENV"
             echo "DEPLOY_PATH=/home/reyhanjs/public_html" >> "$GITHUB_ENV"
-            echo "START_SCRIPT=start" >> "$GITHUB_ENV"       # npm run start -> 4003
+            echo "START_SCRIPT=start" >> "$GITHUB_ENV"   # npm run start -> 4003
             echo "PORT=4003" >> "$GITHUB_ENV"
           elif [ "$BRANCH" = "dev" ]; then
             echo "DEPLOY_USER=devreyhanjs" >> "$GITHUB_ENV"
             echo "DEPLOY_PATH=/home/devreyhanjs/public_html" >> "$GITHUB_ENV"
-            echo "START_SCRIPT=startdev" >> "$GITHUB_ENV"    # npm run startdev -> 4002
+            echo "START_SCRIPT=startdev" >> "$GITHUB_ENV" # npm run startdev -> 4002
             echo "PORT=4002" >> "$GITHUB_ENV"
           else
             echo "Unsupported branch: $BRANCH"
             exit 0
           fi
 
-      - name: Kill app on port (safe)
-        shell: bash
-        run: |
-          sudo fuser -k "${PORT}/tcp" || true
-
-      - name: Sync project to deployment folder
+      - name: Sync project to deployment folder (as deploy user, uses .gitignore)
         shell: bash
         run: |
           set -euo pipefail
+          sudo -u "$DEPLOY_USER" rsync -av --delete --filter=':- .gitignore' ./ "$DEPLOY_PATH/"
 
-          sudo mkdir -p "$DEPLOY_PATH"
-
-          cd "$GITHUB_WORKSPACE"
-          cp .gitignore .rsync-exclude
-
-          rsync -av --delete --exclude-from=".rsync-exclude" ./ "$DEPLOY_PATH/"
-
-      - name: Fix ownership and basic permissions (Virtualmin)
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          sudo chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "$DEPLOY_PATH"
-
-          sudo find "$DEPLOY_PATH" -type d -exec chmod 755 {} \;
-          sudo find "$DEPLOY_PATH" -type f -exec chmod 644 {} \;
-
-      - name: Install deps (needs dev deps for build)
+      - name: Install dependencies (includes dev deps for build)
         shell: bash
         run: |
           set -euo pipefail
@@ -86,17 +65,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm prune --omit=dev" || true
+          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm prune --omit=dev"
 
-      - name: Start service (nohup)
+      - name: Restart app (nohup + pid)
         shell: bash
         run: |
           set -euo pipefail
 
-          sudo fuser -k "${PORT}/tcp" || true
-
           sudo -u "$DEPLOY_USER" bash -lc "
             cd '$DEPLOY_PATH'
             mkdir -p logs
+
+            if [ -f logs/app.pid ]; then
+              kill \$(cat logs/app.pid) 2>/dev/null || true
+              rm -f logs/app.pid
+            fi
+
             nohup npm run ${START_SCRIPT} > logs/app.log 2>&1 &
+            echo \$! > logs/app.pid
           "
