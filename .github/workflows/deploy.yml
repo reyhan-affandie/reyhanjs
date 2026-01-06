@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux, x64, reyhanjs]
+    runs-on: self-hosted
 
     steps:
       - name: Setup parameters (branch -> path/port/start)
