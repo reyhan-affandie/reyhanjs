@@ -9,7 +9,7 @@ import ContactForm from "@/components/customs/contact";
 
 type IconProps = { name: string; alt: string; className?: string };
 
-const FALLBACK_TO_JSD = new Set(["sonarqube", "oracle", "visualstudiocode", "linkedin"]);
+const FALLBACK_TO_JSD = new Set(["sonarqube", "oracle", "visualstudiocode", "linkedin", "openai"]);
 const srcSimple = (slug: string) => `https://cdn.simpleicons.org/${slug}`;
 const srcJsd = (slug: string) => `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${slug}.svg`;
 
@@ -125,7 +125,9 @@ export default function Root() {
                               name={item.icon}
                               alt={item.alt}
                               className={
-                                ["nextdotjs", "shadcnui", "express", "prisma", "knex", "oracle", "sonarqube", "visualstudiocode", "github"].includes(item.icon)
+                                ["nextdotjs", "shadcnui", "express", "prisma", "knex", "oracle", "sonarqube", "visualstudiocode", "github", "openai"].includes(
+                                  item.icon
+                                )
                                   ? "invert group-hover:invert-0"
                                   : ""
                               }
