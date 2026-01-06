@@ -9,69 +9,94 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set deployment config
+      - name: Set deployment config (dev/prod)
+        shell: bash
         run: |
-          BRANCH="$(echo $GITHUB_REF | sed 's|refs/heads/||')"
-          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
-          echo "INSTALL_CMD=npm install --omit=dev" >> $GITHUB_ENV
+          set -euo pipefail
+
+          BRANCH="${GITHUB_REF_NAME}"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
 
           if [ "$BRANCH" = "main" ]; then
-            echo "PORT=4009" >> $GITHUB_ENV
-            echo "DEPLOY_PATH=/www/wwwroot/reyhanjscom" >> $GITHUB_ENV
-            echo "START_CMD=/www/server/nodejs/vhost/scripts/reyhanjs.sh" >> $GITHUB_ENV
-            echo "CRON_FILE=/www/server/cron/de64faf8f2f95ba4fcd501088dd99c90" >> $GITHUB_ENV
+            echo "DEPLOY_USER=reyhanjs" >> "$GITHUB_ENV"
+            echo "DEPLOY_PATH=/home/reyhanjs/public_html" >> "$GITHUB_ENV"
+            echo "START_SCRIPT=start" >> "$GITHUB_ENV"       # npm run start -> 4003
+            echo "PORT=4003" >> "$GITHUB_ENV"
           elif [ "$BRANCH" = "dev" ]; then
-            echo "PORT=4008" >> $GITHUB_ENV
-            echo "DEPLOY_PATH=/www/wwwroot/dev.reyhanjscom" >> $GITHUB_ENV
-            echo "START_CMD=/www/server/nodejs/vhost/scripts/devreyhanjs.sh" >> $GITHUB_ENV
-            echo "CRON_FILE=/www/server/cron/cf1d2706e322aa0a41ece4f4707e0427" >> $GITHUB_ENV
+            echo "DEPLOY_USER=devreyhanjs" >> "$GITHUB_ENV"
+            echo "DEPLOY_PATH=/home/devreyhanjs/public_html" >> "$GITHUB_ENV"
+            echo "START_SCRIPT=startdev" >> "$GITHUB_ENV"    # npm run startdev -> 4002
+            echo "PORT=4002" >> "$GITHUB_ENV"
           else
-            echo "Unsupported branch: $BRANCH. Exiting..."
+            echo "Unsupported branch: $BRANCH"
             exit 0
           fi
 
-      - name: Disable related cron during deployment
+      - name: Kill app on port (safe)
+        shell: bash
         run: |
-          sudo crontab -l | grep -v "$CRON_FILE" | sudo crontab -
-
-      - name: Kill port before starting (safe)
-        run: |
-          sudo fuser -k ${PORT}/tcp || true
-          
-      - name: Correct file permissions
-        run: |
-          cd "$DEPLOY_PATH"
-          sudo find . ! -name '.user.ini' -exec chown www:www {} + || true
-          sudo chmod -R 755 . || true
+          sudo fuser -k "${PORT}/tcp" || true
 
       - name: Sync project to deployment folder
+        shell: bash
         run: |
-          cd $GITHUB_WORKSPACE
+          set -euo pipefail
+
+          sudo mkdir -p "$DEPLOY_PATH"
+
+          cd "$GITHUB_WORKSPACE"
           cp .gitignore .rsync-exclude
-          rsync -av --delete --exclude-from='.rsync-exclude' ./ "$DEPLOY_PATH" || true
 
-      - name: Install dependencies
-        run: |
-          sudo -u www bash -c "cd '$DEPLOY_PATH' && $INSTALL_CMD && npm audit fix" || { echo "npm install failed"; exit 1; }
+          rsync -av --delete --exclude-from=".rsync-exclude" ./ "$DEPLOY_PATH/"
 
-      - name: Remove .next cache
+      - name: Fix ownership and basic permissions (Virtualmin)
+        shell: bash
         run: |
-          sudo -u www bash -c "cd '$DEPLOY_PATH' && rm -rf .next || true"
+          set -euo pipefail
 
-      - name: Build app
-        run: |
-          sudo -u www bash -c "cd '$DEPLOY_PATH' && npm run build" || { echo "npm run build failed"; exit 1; }
+          sudo chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "$DEPLOY_PATH"
 
-      - name: Restart service
+          sudo find "$DEPLOY_PATH" -type d -exec chmod 755 {} \;
+          sudo find "$DEPLOY_PATH" -type f -exec chmod 644 {} \;
+
+      - name: Install deps (needs dev deps for build)
+        shell: bash
         run: |
-          sudo -u www bash -c "$START_CMD" || { echo "Service restart failed"; exit 1; }
-      
-      - name: Re-enable related cron after deployment after 10 seconds
+          set -euo pipefail
+          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm ci"
+
+      - name: Clean Next cache
+        shell: bash
         run: |
-          sleep 10
-          sudo crontab -l | grep -q "$CRON_FILE" || \
-          (sudo crontab -l; echo "0 17 * * * $CRON_FILE >> $(dirname $CRON_FILE)/$(basename $CRON_FILE .sh).log 2>&1") | sudo crontab -
+          set -euo pipefail
+          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && rm -rf .next || true"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm run build"
+
+      - name: Prune dev dependencies (after build)
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo -u "$DEPLOY_USER" bash -lc "cd '$DEPLOY_PATH' && npm prune --omit=dev" || true
+
+      - name: Start service (nohup)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo fuser -k "${PORT}/tcp" || true
+
+          sudo -u "$DEPLOY_USER" bash -lc "
+            cd '$DEPLOY_PATH'
+            mkdir -p logs
+            nohup npm run ${START_SCRIPT} > logs/app.log 2>&1 &
+          "
